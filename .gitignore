@@ -1,0 +1,18 @@
+# Neovim
+*.log
+*.swp
+*.swo
+*~
+
+# Lazy.nvim plugin directory
+lazy-lock.json.bak
+
+# Debugging
+.luarc.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local overrides
+local.lua
