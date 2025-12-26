@@ -14,17 +14,8 @@ return {
         sections = {
           lualine_a = { "mode" },
           lualine_b = { "grapple" },
-          lualine_c = { "branch" },
-          lualine_x = {
-            function()
-              local encoding = vim.o.fileencoding
-              if encoding == "" then
-                return vim.bo.fileformat .. " | " .. vim.bo.filetype
-              else
-                return encoding .. " | " .. vim.bo.fileformat .. " | " .. vim.bo.filetype
-              end
-            end,
-          },
+          lualine_c = { "filename" },
+          lualine_x = { "branch" },
           lualine_y = { "progress" },
           lualine_z = { "location" },
         },
