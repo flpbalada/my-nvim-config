@@ -5,7 +5,7 @@ local i = ls.insert_node
 local f = ls.function_node
 
 return {
-  s("type Foo = {...}", {
+  s("type Name = {...}", {
     t("type "),
     i(1, "Name"),
     t({ " = {", "\t" }),
