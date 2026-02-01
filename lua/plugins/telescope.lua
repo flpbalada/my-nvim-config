@@ -7,6 +7,9 @@ return {
       local actions = require("telescope.actions")
       require("telescope").setup({
         defaults = {
+          cache_picker = {
+            num_pickers = 5,
+          },
           mappings = {
             i = {
               ["<C-l>"] = actions.move_selection_next,
@@ -36,16 +39,28 @@ return {
             file_ignore_patterns = { "node_modules/" },
           },
           live_grep = {
-            theme = "dropdown",
             hidden = true,
             file_ignore_patterns = { "node_modules/" },
           },
         },
       })
-      local builtin = require("telescope.builtin") -- Load telescope builtins
+      local builtin = require("telescope.builtin")
+      local action_state = require("telescope.actions.state")
+      
+      -- Store last live_grep query
+      vim.g.last_live_grep_query = vim.g.last_live_grep_query or ""
 
       vim.keymap.set("n", "<leader>,", builtin.buffers, { desc = "Buffers" })
-      vim.keymap.set("n", "<leader>ú", builtin.live_grep, { desc = "Grep" })
+      vim.keymap.set("n", "<leader>ú", function()
+        builtin.live_grep({
+          default_text = vim.g.last_live_grep_query,
+          on_complete = {
+            function()
+              vim.g.last_live_grep_query = action_state.get_current_line()
+            end,
+          },
+        })
+      end, { desc = "Grep" })
 
       vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
       vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Live grep" })
