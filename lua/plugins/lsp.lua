@@ -73,25 +73,19 @@ return {
       -- Increase timeout for Arduino language server
       vim.lsp.set_log_level("info")
 
-      -- Enable all LSP servers (uses nvim-lspconfig defaults + our customizations)
-      vim.lsp.enable({ "ts_ls", "eslint", "tailwindcss", "html", "cssls", "lua_ls", "arduino_language_server" })
-
-      -- Auto-fix on save for ESLint
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(args)
-          local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if client and client.name == "eslint" then
-            vim.api.nvim_create_autocmd("BufWritePre", {
-              buffer = args.buf,
-              callback = function()
-                pcall(vim.cmd, "EslintFixAll")
-              end,
-            })
-          end
-        end,
+      -- Enable LSP servers with file-type-specific lazy loading
+      vim.lsp.enable({
+        ts_ls = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+        eslint = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+        tailwindcss = { "html", "css", "tsx", "js", "markdown" },
+        html = { "html", "htmldjango" },
+        cssls = { "css", "scss" },
+        lua_ls = { "lua" },
+        arduino_language_server = { "arduino", "cpp", "c" },
+        clangd = { "c", "cpp" },
       })
 
-      -- Add this inside the LspAttach autocmd callback (around line 81)
+      -- Configure LspAttach handler once
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -104,15 +98,16 @@ return {
               end
               return orig_execute_command(command)
             end
-          end
 
-          if client and client.name == "eslint" then
-            vim.api.nvim_create_autocmd("BufWritePre", {
-              buffer = args.buf,
-              callback = function()
-                pcall(vim.cmd, "EslintFixAll")
-              end,
-            })
+            -- Auto-fix on save for ESLint
+            if client.name == "eslint" then
+              vim.api.nvim_create_autocmd("BufWritePre", {
+                buffer = args.buf,
+                callback = function()
+                  pcall(vim.cmd, "EslintFixAll")
+                end,
+              })
+            end
           end
         end,
       })
@@ -121,22 +116,22 @@ return {
       vim.diagnostic.config({
         virtual_text = {
           prefix = '●',
-          spacing = 2,
-          format = function(diagnostic)
-            local message = diagnostic.message:match("^[^\n]*")
-            if #message > 40 then
-              message = message:sub(1, 37) .. "..."
-            end
-            return message .. " [<leader>d] or [<leader>ca]"
-          end,
+          spacing = 4,
         },
-        signs = true,
-        underline = true,         -- Underline errors
-        update_in_insert = false, -- Don't update diagnostics while typing
-        severity_sort = true,     -- Sort by severity
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = '✘',
+            [vim.diagnostic.severity.WARN] = '▲',
+            [vim.diagnostic.severity.INFO] = '»',
+            [vim.diagnostic.severity.HINT] = '›',
+          },
+        },
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
         float = {
-          border = "rounded",
-          source = "always", -- Show the source (eslint, typescript, etc.)
+          border = 'rounded',
+          max_width = 80,
         },
       })
 
