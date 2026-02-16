@@ -20,7 +20,9 @@ vim.opt.timeoutlen = 300
 vim.opt.scrolloff = 8
 vim.opt.clipboard = "unnamedplus"
 vim.opt.undofile = true
-vim.o.guifont = "Fira_Code:h12"
+vim.opt.list = true
+vim.opt.listchars:append({ nbsp = '␣' })
+--vim.opt.guifont = "Fira_Code:h12"
 
 
 require("config.lazy")
