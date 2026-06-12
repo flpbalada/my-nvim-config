@@ -2,15 +2,34 @@ return {
   {
     "stevearc/conform.nvim",
     config = function()
+      local function has_biome_config(bufnr)
+        local bufname = vim.api.nvim_buf_get_name(bufnr)
+        if bufname == "" then
+          return false
+        end
+
+        local dirname = vim.fs.dirname(bufname)
+        return vim.fs.find({ "biome.json", "biome.jsonc" }, { path = dirname, upward = true })[1] ~= nil
+      end
+
+      local function biome_or_prettier(bufnr)
+        if has_biome_config(bufnr) then
+          return { "biome" }
+        end
+
+        return { "prettier" }
+      end
+
       require("conform").setup({
         formatters_by_ft = { -- Configure formatters for each file type
-          javascript = { "prettier" },
-          typescript = { "prettier" },
-          javascriptreact = { "prettier" },
-          typescriptreact = { "prettier" },
+          javascript = biome_or_prettier,
+          typescript = biome_or_prettier,
+          javascriptreact = biome_or_prettier,
+          typescriptreact = biome_or_prettier,
           css = { "prettier" },
           html = { "prettier" },
-          json = { "prettier" },
+          json = biome_or_prettier,
+          jsonc = biome_or_prettier,
           markdown = { "prettier" },
           lua = { "stylua" },
           c = { "clang-format" },
@@ -18,8 +37,8 @@ return {
           arduino = { "clang-format" },
         },
         format_on_save = {      -- Auto-format on save
-          timeout_ms = 2000,    -- Maximum time to wait for formatting
-          lsp_fallback = false, -- Prevent LSP fallback to avoid conflicting formatting
+          timeout_ms = 500,     -- Maximum time to wait for formatting
+          lsp_format = "never", -- Prevent LSP fallback to avoid conflicting formatting
         },
       })
     end,

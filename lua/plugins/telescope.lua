@@ -10,11 +10,21 @@ return {
           cache_picker = {
             num_pickers = 5,
           },
+          sorting_strategy = "ascending",
+          layout_strategy = 'vertical',
+          layout_config = {
+            prompt_position = "top",
+            mirror = true,
+            width = 0.90,
+            height = 0.90,
+            preview_height = 0.6,
+          },
           mappings = {
             i = {
               ["<C-l>"] = actions.move_selection_next,
               ["<C-k>"] = actions.move_selection_previous,
-              ["<c-d>"] = require('telescope.actions').delete_buffer,
+              ["<C-n>"] = "cycle_history_next",
+              ["<C-p>"] = "cycle_history_prev",
             },
             n = {
               ["l"] = actions.move_selection_next,
@@ -26,7 +36,6 @@ return {
         pickers = {
           find_files = {
             sort_mru = true,
-            theme = "dropdown",
             hidden = true,
             file_ignore_patterns = { "node_modules/" },
           },
@@ -34,7 +43,6 @@ return {
             initial_mode = "normal",
             sort_mru = true,
             ignore_current_buffer = true,
-            theme = "dropdown",
             hidden = true,
             file_ignore_patterns = { "node_modules/" },
           },
@@ -46,30 +54,16 @@ return {
       })
       local builtin = require("telescope.builtin")
       local action_state = require("telescope.actions.state")
-      
-      -- Store last live_grep query
-      vim.g.last_live_grep_query = vim.g.last_live_grep_query or ""
-
-      vim.keymap.set("n", "<leader>,", builtin.buffers, { desc = "Buffers" })
-      vim.keymap.set("n", "<leader>ú", function()
-        builtin.live_grep({
-          default_text = vim.g.last_live_grep_query,
-          on_complete = {
-            function()
-              vim.g.last_live_grep_query = action_state.get_current_line()
-            end,
-          },
-        })
-      end, { desc = "Grep" })
 
       vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
       vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Live grep" })
+      vim.keymap.set("n", "<leader>ú", builtin.live_grep, { desc = "Live grep" })
       vim.keymap.set("n", "<leader>fH", builtin.search_history, { desc = "Search history" })
       vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
       vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
       vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = 'Git branches' })
       vim.keymap.set("n", "<leader>gs", builtin.git_status, { desc = "Git status" })
-      vim.keymap.set("n", "<leader>gc", builtin.git_commits, { desc = "Git commits" })
+      vim.keymap.set("n", "<leader>gcc", builtin.git_commits, { desc = "Git commits" })
       vim.keymap.set("n", "<leader>gbc", builtin.git_bcommits, { desc = "Git buffer commits" })
     end,
   }

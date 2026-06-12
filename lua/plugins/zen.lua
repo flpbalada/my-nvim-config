@@ -6,7 +6,7 @@ return {
       require("zen-mode").setup({
         window = {
           backdrop = 0.65,
-          width = 100,
+          width = 120,
           options = {
             signcolumn = "no",
             number = false,

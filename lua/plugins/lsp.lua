@@ -33,8 +33,8 @@ return {
         settings = {
           typescript = {
             inlayHints = {
-              includeInlayParameterNameHints = "all",
-              includeInlayFunctionParameterTypeHints = true,
+              includeInlayParameterNameHints = "none",
+              includeInlayFunctionParameterTypeHints = false,
             },
           },
         },
@@ -104,7 +104,9 @@ return {
               vim.api.nvim_create_autocmd("BufWritePre", {
                 buffer = args.buf,
                 callback = function()
-                  pcall(vim.cmd, "EslintFixAll")
+                  vim.schedule(function()
+                    pcall(vim.cmd, "EslintFixAll")
+                  end)
                 end,
               })
             end
@@ -116,7 +118,7 @@ return {
       vim.diagnostic.config({
         virtual_text = {
           prefix = '●',
-          spacing = 4,
+          spacing = 2,
         },
         signs = {
           text = {

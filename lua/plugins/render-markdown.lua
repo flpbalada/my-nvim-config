@@ -1,10 +1,35 @@
 return {
   {
     "MeanderingProgrammer/render-markdown.nvim",
-    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons", {
+      "3rd/image.nvim",
+      config = function()
+        require("image").setup({
+          backend = "kitty", -- Ghostty uses the kitty protocol
+          integrations = {
+            markdown = {
+              enabled = true,
+              clear_in_insert_mode = false,
+              download_remote_images = true,
+              only_render_image_at_cursor = false,
+              filetypes = { "markdown", "vimwiki" },
+            },
+          },
+          max_width = 100,
+          max_height = 12,
+          window_overlap_clear_enabled = true,
+        })
+      end
+    }
+    },
     config = function()
       require("render-markdown").setup({
         preset = "github", -- Use GitHub-style rendering preset
+        anti_conceal = { enabled = true },
+        mermaid = {
+          enabled = true,
+          render_mode = "image",
+        },
         heading = {
           enabled = true,
           sign = false,
