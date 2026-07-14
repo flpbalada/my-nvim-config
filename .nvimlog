@@ -3,3 +3,6 @@ WRN 2026-06-09T15:49:56.157 ?.91612    server_start:193: Failed to start server:
 WRN 2026-06-12T09:42:59.858 ?.96103    server_start:193: Failed to start server: operation not permitted: /var/folders/w4/jsx5z_cj2jx633rv1lplyw7h0000gn/T/nvim.filipbalada/cj228d/nvim.96103.0
 WRN 2026-06-12T09:42:59.859 ?.96104    server_start:193: Failed to start server: operation not permitted: /var/folders/w4/jsx5z_cj2jx633rv1lplyw7h0000gn/T/nvim.filipbalada/6e98hm/nvim.96104.0
 WRN 2026-06-12T09:42:59.949 ?.96105    server_start:193: Failed to start server: operation not permitted: /var/folders/w4/jsx5z_cj2jx633rv1lplyw7h0000gn/T/nvim.filipbalada/093RpW/nvim.96105.0
+WRN 2026-06-12T20:16:09.170 ?.93553    server_start:193: Failed to start server: operation not permitted: /var/folders/w4/jsx5z_cj2jx633rv1lplyw7h0000gn/T/nvim.filipbalada/z60kK7/nvim.93553.0
+WRN 2026-07-06T20:35:33.767 ?.69930    server_start:193: Failed to start server: operation not permitted: /var/folders/w4/jsx5z_cj2jx633rv1lplyw7h0000gn/T/nvim.filipbalada/J4jRcx/nvim.69930.0
+WRN 2026-07-06T20:35:36.629 ?.70038    server_start:193: Failed to start server: operation not permitted: /var/folders/w4/jsx5z_cj2jx633rv1lplyw7h0000gn/T/nvim.filipbalada/NuPHel/nvim.70038.0

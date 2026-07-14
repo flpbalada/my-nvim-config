@@ -2,6 +2,7 @@ return {
   {
     "akinsho/git-conflict.nvim",
     version = "*",
+    event = { "BufReadPost", "BufNewFile" },
     config = function()
       require("git-conflict").setup({
         default_mappings = true,     -- Use default buffer-local mappings (o, t, b, 0, n, p)
@@ -15,13 +16,13 @@ return {
       })
 
       -- Global keymaps for resolving conflicts
-      vim.keymap.set("n", "<leader>gco", "<Plug>(git-conflict-ours)", { desc = "Choose ours" })
-      vim.keymap.set("n", "<leader>gct", "<Plug>(git-conflict-theirs)", { desc = "Choose theirs" })
-      vim.keymap.set("n", "<leader>gcb", "<Plug>(git-conflict-both)", { desc = "Choose both" })
-      vim.keymap.set("n", "<leader>gc0", "<Plug>(git-conflict-none)", { desc = "Choose none" })
+      vim.keymap.set("n", "<leader>gxo", "<Plug>(git-conflict-ours)", { desc = "Use current change" })
+      vim.keymap.set("n", "<leader>gxt", "<Plug>(git-conflict-theirs)", { desc = "Use incoming change" })
+      vim.keymap.set("n", "<leader>gxb", "<Plug>(git-conflict-both)", { desc = "Use both changes" })
+      vim.keymap.set("n", "<leader>gx0", "<Plug>(git-conflict-none)", { desc = "Delete both changes" })
       vim.keymap.set("n", "[x", "<Plug>(git-conflict-prev-conflict)", { desc = "Previous conflict" })
       vim.keymap.set("n", "]x", "<Plug>(git-conflict-next-conflict)", { desc = "Next conflict" })
-      vim.keymap.set("n", "<leader>gcl", ":GitConflictListQf<CR>", { desc = "List conflicts" })
+      vim.keymap.set("n", "<leader>gxl", ":GitConflictListQf<CR>", { desc = "List merge conflicts" })
     end,
   },
 }

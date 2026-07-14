@@ -1,8 +1,23 @@
 return {
   {
     "williamboman/mason.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    cmd = {
+      "Mason",
+      "MasonInstall",
+      "MasonUninstall",
+      "MasonUninstallAll",
+      "MasonLog",
+      "MasonUpdate",
+      "MasonToolsInstall",
+      "MasonToolsInstallSync",
+      "MasonToolsUpdate",
+      "MasonToolsUpdateSync",
+      "MasonToolsClean",
+    },
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
+      "WhoIsSethDaniel/mason-tool-installer.nvim",
       "neovim/nvim-lspconfig",
       "hrsh7th/cmp-nvim-lsp",
     },
@@ -19,6 +34,18 @@ return {
           'arduino_language_server',
           'clangd'
         },
+        automatic_enable = false,
+      })
+      require("mason-tool-installer").setup({
+        ensure_installed = {
+          "prettier",
+          "stylua",
+          "biome",
+          "clang-format",
+        },
+        run_on_start = true,
+        start_delay = 3000,
+        debounce_hours = 24,
       })
 
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
@@ -30,6 +57,7 @@ return {
 
       -- Customize TypeScript/JavaScript LSP with inlay hints
       vim.lsp.config('ts_ls', {
+        filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
         settings = {
           typescript = {
             inlayHints = {
@@ -42,6 +70,7 @@ return {
 
       -- Customize Lua LSP with Neovim settings
       vim.lsp.config('lua_ls', {
+        filetypes = { "lua" },
         settings = {
           Lua = {
             runtime = {
@@ -57,8 +86,25 @@ return {
         },
       })
 
+      vim.lsp.config('eslint', {
+        filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+      })
+
+      vim.lsp.config('tailwindcss', {
+        filetypes = { "html", "css", "typescriptreact", "javascriptreact", "typescript", "javascript", "markdown", "mdx" },
+      })
+
+      vim.lsp.config('html', {
+        filetypes = { "html", "htmldjango" },
+      })
+
+      vim.lsp.config('cssls', {
+        filetypes = { "css", "scss", "less" },
+      })
+
       -- Configure Arduino language server
       vim.lsp.config('arduino_language_server', {
+        filetypes = { "arduino", "cpp", "c" },
         cmd = {
           "arduino-language-server",
           "-cli-config", os.getenv('HOME') .. '/Library/Arduino15/arduino-cli.yaml',
@@ -70,47 +116,26 @@ return {
         },
       })
 
-      -- Increase timeout for Arduino language server
-      vim.lsp.set_log_level("info")
+      vim.lsp.config('clangd', {
+        filetypes = { "c", "cpp" },
+      })
 
       -- Enable LSP servers with file-type-specific lazy loading
-      vim.lsp.enable({
-        ts_ls = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-        eslint = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-        tailwindcss = { "html", "css", "tsx", "js", "markdown" },
-        html = { "html", "htmldjango" },
-        cssls = { "css", "scss" },
-        lua_ls = { "lua" },
-        arduino_language_server = { "arduino", "cpp", "c" },
-        clangd = { "c", "cpp" },
-      })
+      vim.lsp.enable({ "ts_ls", "eslint", "tailwindcss", "html", "cssls", "lua_ls", "arduino_language_server", "clangd" })
 
       -- Configure LspAttach handler once
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if client then
-            -- Suppress errors from unknown workspace commands
-            local orig_execute_command = vim.lsp.buf.execute_command
-            vim.lsp.buf.execute_command = function(command)
-              if command.command and command.command:match("_typescript") then
-                return -- Silently ignore TypeScript-only commands
-              end
-              return orig_execute_command(command)
-            end
-
-            -- Auto-fix on save for ESLint
-            if client.name == "eslint" then
-              vim.api.nvim_create_autocmd("BufWritePre", {
-                buffer = args.buf,
-                callback = function()
-                  vim.schedule(function()
-                    pcall(vim.cmd, "EslintFixAll")
-                  end)
-                end,
-              })
-            end
+          if not client then
+            return
           end
+
+          if client.name ~= "eslint" then
+            return
+          end
+
+          vim.keymap.set("n", "<leader>cE", "<cmd>EslintFixAll<CR>", { buffer = args.buf, desc = "ESLint fix all" })
         end,
       })
 

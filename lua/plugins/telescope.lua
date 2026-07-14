@@ -1,8 +1,92 @@
+local commit_log_format = "%h%x1f%an%x1f%ae%x1f%s"
+
+local function git_commit_entry_maker(opts)
+  opts = opts or {}
+
+  local entry_display = require("telescope.pickers.entry_display")
+  local make_entry = require("telescope.make_entry")
+  local displayer = entry_display.create({
+    separator = " ",
+    items = {
+      { width = 8 },
+      { width = 22 },
+      { width = 30 },
+      { remaining = true },
+    },
+  })
+
+  local function make_display(entry)
+    return displayer({
+      { entry.value, "TelescopeResultsIdentifier" },
+      entry.author,
+      entry.email,
+      entry.subject,
+    })
+  end
+
+  return function(line)
+    if line == "" then
+      return nil
+    end
+
+    local sha, author, email, subject = line:match("([^\31]+)\31([^\31]*)\31([^\31]*)\31(.*)")
+    if not sha then
+      return nil
+    end
+
+    if subject == "" then
+      subject = "<empty commit message>"
+    end
+
+    return make_entry.set_default_entry_mt({
+      value = sha,
+      ordinal = table.concat({ sha, author, email, subject }, " "),
+      author = author,
+      email = email,
+      subject = subject,
+      msg = subject,
+      display = make_display,
+      current_file = opts.current_file,
+    }, opts)
+  end
+end
+
+local function git_commit_picker_opts()
+  local opts = {
+    git_command = { "git", "log", "--pretty=format:" .. commit_log_format, "--", "." },
+  }
+  opts.entry_maker = git_commit_entry_maker(opts)
+
+  return opts
+end
+
+local function git_current_file_commit_picker_opts()
+  local opts = {
+    git_command = { "git", "log", "--pretty=format:" .. commit_log_format, "--follow", "--" },
+  }
+  opts.entry_maker = git_commit_entry_maker(opts)
+
+  return opts
+end
+
 return {
   {
     "nvim-telescope/telescope.nvim",
     branch = "0.1.x",
+    cmd = "Telescope",
     dependencies = { "nvim-lua/plenary.nvim" },
+    keys = {
+      { "<leader>ff", function() require("telescope.builtin").find_files() end, desc = "Find files" },
+      { "<leader>fg", function() require("telescope.builtin").live_grep() end, desc = "Live grep" },
+      { "<leader>ú", function() require("telescope.builtin").live_grep() end, desc = "Live grep" },
+      { "<leader>fH", function() require("telescope.builtin").search_history() end, desc = "Search history" },
+      { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Find buffers" },
+      { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help tags" },
+      { "<leader>gb", function() require("telescope.builtin").git_branches() end, desc = "List git branches" },
+      { "<leader>gc", function() require("telescope.builtin").git_commits(git_commit_picker_opts()) end, desc = "List git commits" },
+      { "<leader>gC", function() require("telescope.builtin").git_bcommits(git_current_file_commit_picker_opts()) end, desc = "List current file commits" },
+      { "<leader>gs", function() require("telescope.builtin").git_status() end, desc = "List changed files" },
+    },
     config = function()
       local actions = require("telescope.actions")
       require("telescope").setup({
@@ -29,7 +113,7 @@ return {
             n = {
               ["l"] = actions.move_selection_next,
               ["k"] = actions.move_selection_previous,
-              ["dd"] = require('telescope.actions').delete_buffer,
+              ["dd"] = actions.delete_buffer,
             },
           },
         },
@@ -52,19 +136,6 @@ return {
           },
         },
       })
-      local builtin = require("telescope.builtin")
-      local action_state = require("telescope.actions.state")
-
-      vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
-      vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Live grep" })
-      vim.keymap.set("n", "<leader>ú", builtin.live_grep, { desc = "Live grep" })
-      vim.keymap.set("n", "<leader>fH", builtin.search_history, { desc = "Search history" })
-      vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
-      vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
-      vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = 'Git branches' })
-      vim.keymap.set("n", "<leader>gs", builtin.git_status, { desc = "Git status" })
-      vim.keymap.set("n", "<leader>gcc", builtin.git_commits, { desc = "Git commits" })
-      vim.keymap.set("n", "<leader>gbc", builtin.git_bcommits, { desc = "Git buffer commits" })
     end,
   }
 }

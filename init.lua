@@ -1,5 +1,15 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+vim.g.loaded_node_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_ruby_provider = 0
+
+local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
+if not vim.env.PATH:find(mason_bin, 1, true) then
+  vim.env.PATH = mason_bin .. ":" .. vim.env.PATH
+end
+
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.mouse = "a"

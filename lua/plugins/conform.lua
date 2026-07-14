@@ -1,6 +1,7 @@
 return {
   {
     "stevearc/conform.nvim",
+    cmd = "ConformInfo",
     config = function()
       local function has_biome_config(bufnr)
         local bufname = vim.api.nvim_buf_get_name(bufnr)
@@ -36,10 +37,7 @@ return {
           cpp = { "clang-format" },
           arduino = { "clang-format" },
         },
-        format_on_save = {      -- Auto-format on save
-          timeout_ms = 500,     -- Maximum time to wait for formatting
-          lsp_format = "never", -- Prevent LSP fallback to avoid conflicting formatting
-        },
+        notify_on_error = true,
       })
     end,
   },

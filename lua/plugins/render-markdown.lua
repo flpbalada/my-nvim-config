@@ -1,8 +1,10 @@
 return {
   {
     "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown", "mdx", "vimwiki" },
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons", {
       "3rd/image.nvim",
+      lazy = true,
       config = function()
         require("image").setup({
           backend = "kitty", -- Ghostty uses the kitty protocol
@@ -24,12 +26,10 @@ return {
     },
     config = function()
       require("render-markdown").setup({
-        preset = "github", -- Use GitHub-style rendering preset
+        preset = "none",
         anti_conceal = { enabled = true },
-        mermaid = {
-          enabled = true,
-          render_mode = "image",
-        },
+        latex = { enabled = false },
+        yaml = { enabled = false },
         heading = {
           enabled = true,
           sign = false,

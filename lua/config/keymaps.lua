@@ -1,37 +1,58 @@
--- Save without formatting
-vim.keymap.set("n", "<leader>W", ":w<CR>", { desc = "Save file" })
-
--- Format and save (with import organization for TS/JS)
-vim.keymap.set("n", "<leader>w", function()
+local function has_file_name()
   local bufname = vim.api.nvim_buf_get_name(0)
-
-  -- Guard: require a file name to save
   if bufname == "" then
     vim.notify("Buffer has no file name. Use :w <filename> to save.", vim.log.levels.WARN)
+    return false
+  end
+
+  return true
+end
+
+local ts_filetypes = {
+  javascript = true,
+  javascriptreact = true,
+  typescript = true,
+  typescriptreact = true,
+}
+
+local function organize_typescript_imports()
+  if not ts_filetypes[vim.bo.filetype] then
+    return 0
+  end
+
+  local clients = vim.lsp.get_clients({ bufnr = 0, name = "ts_ls" })
+  if #clients == 0 then
+    return 0
+  end
+
+  pcall(vim.lsp.buf.execute_command, {
+    command = "_typescript.organizeImports",
+    arguments = { vim.api.nvim_buf_get_name(0) },
+  })
+
+  return 150
+end
+
+-- Save without formatting
+vim.keymap.set("n", "<leader>W", function()
+  if not has_file_name() then
     return
   end
 
-  local filetype = vim.bo.filetype
+  vim.cmd.write()
+end, { desc = "Save file" })
 
-  -- Organize imports only for TypeScript/JavaScript files
-  if filetype == "typescript" or filetype == "javascript" or filetype == "typescriptreact" or filetype == "javascriptreact" then
-    local params = {
-      command = "_typescript.organizeImports",
-      arguments = { bufname },
-    }
-    vim.lsp.buf.execute_command(params)
-
-    -- Small delay to ensure organize imports completes before formatting
-    vim.defer_fn(function()
-      vim.lsp.buf.format()
-      vim.cmd("w")
-    end, 250)
+-- Format and save
+vim.keymap.set("n", "<leader>w", function()
+  if not has_file_name() then
     return
   end
 
-  -- For all other files (including markdown), just format and save
-  vim.lsp.buf.format()
-  vim.cmd("w")
+  local delay = organize_typescript_imports()
+  vim.defer_fn(function()
+    require("conform").format({ timeout_ms = 1000, lsp_format = "never" })
+    vim.cmd.write()
+  end, delay)
 end, { desc = "Format and save" })
 
 -- Quit
@@ -75,5 +96,5 @@ vim.keymap.set("n", "<leader>wv", "<C-w>v", { desc = "Split vertical" })
 vim.keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Equalize window sizes" })
 
 -- Scrolling up and down to center of page
-vim.keymap.set("n", "<C-d>", "<C-d>zz")
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
+vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down" })
+vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up" })
