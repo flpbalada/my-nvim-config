@@ -101,7 +101,9 @@ return {
             mirror = true,
             width = 0.90,
             height = 0.90,
-            preview_height = 0.6,
+            vertical = {
+              preview_height = 0.6,
+            },
           },
           mappings = {
             i = {
@@ -118,6 +120,17 @@ return {
           },
         },
         pickers = {
+          git_status = {
+            layout_strategy = "horizontal",
+            layout_config = {
+              horizontal = {
+                prompt_position = "top",
+                preview_width = 0.75,
+                width = 0.95,
+                height = 0.9,
+              },
+            },
+          },
           find_files = {
             sort_mru = true,
             hidden = true,
